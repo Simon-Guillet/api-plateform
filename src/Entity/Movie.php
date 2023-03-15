@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
@@ -20,8 +21,7 @@ class Movie
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $poster_path = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $overview = null;
+
 
     #[ORM\Column(length: 255)]
     private ?string $release_date = null;
@@ -37,6 +37,9 @@ class Movie
 
     #[ORM\ManyToMany(targetEntity: Genre::class, mappedBy: 'movie')]
     private Collection $genres;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $overview = null;
 
     public function __construct()
     {
@@ -60,17 +63,7 @@ class Movie
         return $this;
     }
 
-    public function getOverview(): ?string
-    {
-        return $this->overview;
-    }
 
-    public function setOverview(string $overview): self
-    {
-        $this->overview = $overview;
-
-        return $this;
-    }
 
     public function getReleaseDate(): ?string
     {
@@ -143,6 +136,18 @@ class Movie
         if ($this->genres->removeElement($genre)) {
             $genre->removeMovie($this);
         }
+
+        return $this;
+    }
+
+    public function getOverview(): ?string
+    {
+        return $this->overview;
+    }
+
+    public function setOverview(?string $overview): self
+    {
+        $this->overview = $overview;
 
         return $this;
     }
