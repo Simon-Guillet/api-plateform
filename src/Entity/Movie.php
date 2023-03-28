@@ -21,8 +21,6 @@ class Movie
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $poster_path = null;
 
-
-
     #[ORM\Column(length: 255)]
     private ?string $release_date = null;
 
@@ -62,8 +60,6 @@ class Movie
 
         return $this;
     }
-
-
 
     public function getReleaseDate(): ?string
     {

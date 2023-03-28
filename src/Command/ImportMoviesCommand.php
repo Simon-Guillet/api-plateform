@@ -23,13 +23,6 @@ class ImportMoviesCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
-    {
-        $this
-            ->addOption('page', null, InputOption::VALUE_OPTIONAL, 'Page number', 1)
-        ;
-    }
-
     protected function getMovies($page) {
         $API_KEY = '9962de3c66111255c5b403573ceab203';
         $ch = curl_init();
@@ -40,9 +33,20 @@ class ImportMoviesCommand extends Command
         return $response;
     }
 
+    protected function getNbPages() {
+        $API_KEY = '9962de3c66111255c5b403573ceab203';
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.themoviedb.org/3/movie/popular?api_key='.$API_KEY.'&language=fr-FR&page=1');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $json = json_decode($response, true);
+        return $json['total_pages'];
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $nbPages = $input->getOption('page') ?: 1;
+        $nbPages = $this->getNbPages();
 
         for ($i = 1; $i <= $nbPages; $i++) {
             $response = $this->getMovies($i);
@@ -61,7 +65,11 @@ class ImportMoviesCommand extends Command
                 $movieEntity = new Movie();
                 $movieEntity->setTitle($movie['title']);
                 $movieEntity->setOverview($movie['overview']);
-                $movieEntity->setReleaseDate($movie['release_date']);
+                if (isset($movie['release_date'])) {
+                    $movieEntity->setReleaseDate($movie['release_date']);
+                } else {
+                    $movieEntity->setReleaseDate("");
+                }
                 $movieEntity->setPosterPath($movie['poster_path']);
                 $movieEntity->setBackdropPath($movie['backdrop_path']);
                 $movieEntity->setVoteAverage($movie['vote_average']);
