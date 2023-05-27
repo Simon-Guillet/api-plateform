@@ -57,9 +57,23 @@ class ImportMoviesCommand extends Command
             foreach ($movies as $movie) {
                 $output->writeln($movie['title']);
 
-                // If the movie already exists, skip it
+                // If the movie already exists, update it
                 $existingMovie = $this->entityManager->getRepository(Movie::class)->findOneBy(['title' => $movie['title']]);
                 if ($existingMovie) {
+                    $existingMovie->setOverview($movie['overview']);
+                    if (isset($movie['release_date'])) {
+                        $existingMovie->setReleaseDate($movie['release_date']);
+                    } else {
+                        $existingMovie->setReleaseDate("");
+                    }
+                    $existingMovie->setPosterPath($movie['poster_path']);
+                    $existingMovie->setBackdropPath($movie['backdrop_path']);
+                    $existingMovie->setVoteAverage($movie['vote_average']);
+                    $existingMovie->setTmdbId($movie['id']);
+
+                    $this->entityManager->persist($existingMovie);
+
+                    $this->entityManager->flush();
                     continue;
                 }
                 $movieEntity = new Movie();
@@ -73,6 +87,7 @@ class ImportMoviesCommand extends Command
                 $movieEntity->setPosterPath($movie['poster_path']);
                 $movieEntity->setBackdropPath($movie['backdrop_path']);
                 $movieEntity->setVoteAverage($movie['vote_average']);
+                $movieEntity->setTmdbId($movie['id']);
 
                 $this->entityManager->persist($movieEntity);
 

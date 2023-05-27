@@ -39,6 +39,9 @@ class Movie
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $overview = null;
 
+    #[ORM\Column]
+    private ?int $tmdb_id = null;
+
     public function __construct()
     {
         $this->genres = new ArrayCollection();
@@ -144,6 +147,18 @@ class Movie
     public function setOverview(?string $overview): self
     {
         $this->overview = $overview;
+
+        return $this;
+    }
+
+    public function getTmdbId(): ?int
+    {
+        return $this->tmdb_id;
+    }
+
+    public function setTmdbId(int $tmdb_id): self
+    {
+        $this->tmdb_id = $tmdb_id;
 
         return $this;
     }
